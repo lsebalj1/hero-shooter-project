@@ -11,15 +11,18 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user';
 
 const username = ref('');
 const password = ref('');
+const router = useRouter()
 const userStore = useUserStore();
 
 function handleLogin() {
   userStore.login({ username: username.value });
   alert(`Logged in as ${username.value}`);
+  router.push('/home');
 }
 </script>
 
