@@ -30,9 +30,6 @@ const passwordError = ref('')
 const router = useRouter()
 const userStore = useUserStore()
 
-// Simulacija baze zauzetih korisnika (globalno unutar modula)
-const takenUsernames = ref(['admin', 'test', 'player1'])
-
 function validateEmail(emailValue) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)
 }
@@ -54,7 +51,14 @@ function handleRegister() {
     return
   }
 
-  if (takenUsernames.value.includes(userVal)) {
+  // ✅ Sigurnosna provjera da users array postoji
+  if (!Array.isArray(userStore.users)) {
+    userStore.users = []
+  }
+
+  const isTaken = userStore.users.find(u => u.username === userVal)
+
+  if (isTaken) {
     usernameError.value = 'Username is already taken.'
     return
   }
@@ -64,15 +68,14 @@ function handleRegister() {
     return
   }
 
-  // Dodaj korisnika u "bazu" zauzetih korisničkih imena (simulacija)
-  takenUsernames.value.push(userVal)
-
-  // Uspješna registracija: prijavi korisnika i preusmjeri
-  userStore.login({
-    username: username.value,
-    email: email.value
+  // Registriraj korisnika (sa spremanjem u store)
+  userStore.register({
+    username: userVal,
+    email: email.value,
+    password: password.value
   })
 
+  // Preusmjeri na home
   router.push('/home')
 }
 </script>
@@ -82,10 +85,10 @@ function handleRegister() {
   max-width: 400px;
   margin: 50px auto;
   padding: 30px;
-  background-color: #0f172a; /* tamna pozadina */
+  background-color: #0f172a;
   border-radius: 10px;
   text-align: center;
-  color: #facc15; /* zlatni tekst */
+  color: #facc15;
   box-shadow: 0 0 20px #1e3a8a88;
 }
 

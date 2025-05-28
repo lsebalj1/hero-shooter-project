@@ -4,6 +4,7 @@
     <form @submit.prevent="handleLogin">
       <input v-model="username" placeholder="Username" />
       <input v-model="password" type="password" placeholder="Password" />
+      <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
       <button type="submit">Login</button>
     </form>
   </div>
@@ -12,17 +13,27 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user';
+import { useUserStore } from '../stores/user'
 
-const username = ref('');
-const password = ref('');
+const username = ref('')
+const password = ref('')
+const errorMessage = ref('')
 const router = useRouter()
-const userStore = useUserStore();
+const userStore = useUserStore()
 
 function handleLogin() {
-  userStore.login({ username: username.value });
-  alert(`Logged in as ${username.value}`);
-  router.push('/home');
+  errorMessage.value = ''
+
+  const success = userStore.login({
+    username: username.value.trim().toLowerCase(),
+    password: password.value
+  })
+
+  if (success) {
+    router.push('/home')
+  } else {
+    errorMessage.value = 'Invalid username or password.'
+  }
 }
 </script>
 
@@ -31,10 +42,10 @@ function handleLogin() {
   max-width: 400px;
   margin: 50px auto;
   padding: 30px;
-  background-color: #0f172a; /* tamna pozadina */
+  background-color: #0f172a;
   border-radius: 10px;
   text-align: center;
-  color: #facc15; /* zlatni tekst */
+  color: #facc15;
   box-shadow: 0 0 20px #1e3a8a88;
 }
 
@@ -68,5 +79,11 @@ button {
 button:hover {
   background-color: #3b82f6;
   color: #fff;
+}
+
+.error {
+  color: #f87171;
+  font-size: 0.9em;
+  margin-top: 5px;
 }
 </style>
